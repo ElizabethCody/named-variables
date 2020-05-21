@@ -27,6 +27,8 @@ import sh.cody.namedvars.parse.*;
 import sh.cody.namedvars.value.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.*;
 
 @SuppressWarnings("unchecked")
@@ -53,8 +55,13 @@ public final class Scope implements Iterable<Variable<?>> {
       return variable;
    }
 
-   public <T> Variable<T> addProxyVariable(String name, Class<T> type, Value<T> value) throws VariableScopeException {
+   private <T> Variable<T> addProxyVariable(String name, Class<T> type, Value<T> value) throws VariableScopeException {
       return this.addVariable(new ValueVariable<>(name, type, this, this.parserProvider.match(type), value));
+   }
+
+   public <T> Variable<T> addProxyVariable(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
+      throws VariableScopeException {
+      return this.addProxyVariable(name, type, new FunctionalValue<>(getter, setter));
    }
 
    public <T> Variable<T> newVariable(String name, Class<T> type) throws VariableScopeException {
