@@ -31,9 +31,9 @@ public interface Parser<T> {
       return str -> {
          if(str == null || "".equals(str) || "null".equalsIgnoreCase(str)) {
             return null;
+         } else {
+            return parser.parse(str);
          }
-
-         return parser.parse(str);
       };
    }
 
