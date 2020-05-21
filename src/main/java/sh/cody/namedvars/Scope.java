@@ -27,8 +27,7 @@ import sh.cody.namedvars.parse.*;
 import sh.cody.namedvars.value.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.*;
 
 @SuppressWarnings("unchecked")
