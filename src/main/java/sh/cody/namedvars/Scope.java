@@ -31,8 +31,17 @@ import java.util.stream.*;
 
 @SuppressWarnings("unchecked")
 public final class Scope implements Iterable<Variable<?>> {
-   private final Map<String, Variable<?>> variableMap = new HashMap<>();
-   private final ParserProvider parserProvider = new SimpleParserProvider();
+   private final Map<String, Variable<?>> variableMap;
+   private final ParserProvider parserProvider;
+
+   public Scope() {
+      this(new SimpleParserProvider(false));
+   }
+
+   public Scope(ParserProvider parserProvider) {
+      this.variableMap = new HashMap<>();
+      this.parserProvider = parserProvider;
+   }
 
    private <T> Variable<T> addVariable(Variable<T> variable) throws VariableScopeException {
       if(this.variableMap.containsKey(variable.getName())) {

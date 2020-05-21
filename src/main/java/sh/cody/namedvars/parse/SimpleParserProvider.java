@@ -24,8 +24,18 @@ package sh.cody.namedvars.parse;
 
 @SuppressWarnings("unchecked")
 public final class SimpleParserProvider extends ParserProvider {
+   private final boolean caseSensitiveEnums;
+
+   public SimpleParserProvider(boolean caseSensitiveEnums) {
+      this.caseSensitiveEnums = caseSensitiveEnums;
+   }
+
    @Override
    public <T> Parser<T> match(Class<T> type) {
+      if(type.isEnum()) {
+         return Parser.fromEnum(type, this.caseSensitiveEnums);
+      }
+
       return matcher(type,
             parserFor(boolean.class, Boolean::parseBoolean),
             parserFor(byte.class, Byte::parseByte),
