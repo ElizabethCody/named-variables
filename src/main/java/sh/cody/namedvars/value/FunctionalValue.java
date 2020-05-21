@@ -1,5 +1,6 @@
 package sh.cody.namedvars.value;
 
+import java.util.Objects;
 import java.util.function.*;
 
 public final class FunctionalValue<T> implements Value<T> {
@@ -7,8 +8,8 @@ public final class FunctionalValue<T> implements Value<T> {
    private final Consumer<T> setter;
 
    public FunctionalValue(Supplier<T> getter, Consumer<T> setter) {
-      this.getter = getter;
-      this.setter = setter;
+      this.getter = Objects.requireNonNull(getter);
+      this.setter = Objects.requireNonNull(setter);
    }
 
    @Override
