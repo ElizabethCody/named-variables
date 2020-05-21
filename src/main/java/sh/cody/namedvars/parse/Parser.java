@@ -29,7 +29,7 @@ public interface Parser<T> {
 
    static <T> Parser<T> nullChecked(Parser<T> parser) {
       return str -> {
-         if(str == null || "".equalsIgnoreCase(str) || "null".equalsIgnoreCase(str)) {
+         if(str == null || "".equals(str) || "null".equalsIgnoreCase(str)) {
             return null;
          }
 
