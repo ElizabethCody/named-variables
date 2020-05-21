@@ -30,7 +30,7 @@ public final class SimpleParserProvider extends ParserProvider {
             parserFor(boolean.class, Boolean::parseBoolean),
             parserFor(byte.class, Byte::parseByte),
             parserFor(short.class, Short::parseShort),
-            parserFor(char.class, string -> string.charAt(0)),
+            parserFor(char.class, str -> str.charAt(0)),
             parserFor(int.class, Integer::parseInt),
             parserFor(long.class, Long::parseLong),
             parserFor(float.class, Float::parseFloat),
