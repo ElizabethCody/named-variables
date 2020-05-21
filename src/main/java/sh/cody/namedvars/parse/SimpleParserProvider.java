@@ -42,7 +42,8 @@ public final class SimpleParserProvider extends ParserProvider {
             parserFor(Integer.class, Parser.nullChecked(Integer::parseInt)),
             parserFor(Long.class, Parser.nullChecked(Long::parseLong)),
             parserFor(Float.class, Parser.nullChecked(Float::parseFloat)),
-            parserFor(Double.class, Parser.nullChecked(Double::parseDouble))
+            parserFor(Double.class, Parser.nullChecked(Double::parseDouble)),
+            parserFor(String.class, String::valueOf)
       );
    }
 }
