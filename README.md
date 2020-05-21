@@ -13,7 +13,7 @@ public class Example {
    private Scope scope;
    
    // Create variable entirely at runtime, see constructor.
-   private Variable<T> colorCode1;
+   private Variable<?> colorCode1;
 
    // Create variable with reflection, implicitly named.
    @GenerateVariable
@@ -31,6 +31,7 @@ public class Example {
       colorCode1 = scope.newVariable("colorCode1", int.class, 0x00ff00); // Create a variable at runtime whose storage
                                                                          // is managed by named-vars.
       scope.importAllVariables(this); // Adds all variables decorated with @GenerateVariable to the scope.
+      namedVarsExample();
    }
 
    void namedVarsExample() {
