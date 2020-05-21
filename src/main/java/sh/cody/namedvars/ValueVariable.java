@@ -68,6 +68,10 @@ public final class ValueVariable<T> implements Variable<T> {
 
    @Override
    public void parse(String str) {
+      if(this.parser == null) {
+         throw new RuntimeException("This variable does not support parsing.");
+      }
+
       this.set(this.parser.parse(str));
    }
 
