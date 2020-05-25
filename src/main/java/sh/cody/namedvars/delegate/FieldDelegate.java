@@ -23,21 +23,32 @@
 package sh.cody.namedvars.delegate;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
+/**
+ * A {@link Delegate} implementation that can be used when a variable's value is stored within a Java field.
+ *
+ * This class is designed so descendents can easily instrument {@link FieldDelegate#get()} and
+ * {@link FieldDelegate#set(Object)} so they may target fields whose types may be too complex for a
+ * {@link sh.cody.namedvars.parse.Parser}.
+ *
+ * @param <T> the type of the stored value as its known by the Scope
+ */
 public class FieldDelegate<T> implements Delegate<T> {
    private final Object instance;
    private final Field field;
 
    public FieldDelegate(Object instance, Field field) {
       this.instance = instance;
-      this.field = field;
+      this.field = Objects.requireNonNull(field);
    }
 
-   /*
-    * The readField() & writeField() methods are separate from the get() & set() methods for the convenience of
-    * descendant classes.
-    */
 
+   /**
+    * Commits a value to the {@link Field}.
+    *
+    * @param value value to set
+    */
    protected final void writeField(Object value) {
       try {
          this.field.setAccessible(true);
@@ -47,6 +58,11 @@ public class FieldDelegate<T> implements Delegate<T> {
       }
    }
 
+   /**
+    * Extracts a value from the {@link Field}.
+    *
+    * @return the value
+    */
    protected final Object readField() {
       try {
          this.field.setAccessible(true);
@@ -56,12 +72,24 @@ public class FieldDelegate<T> implements Delegate<T> {
       }
    }
 
+   /**
+    * Returns the value of {@link FieldDelegate#readField()}.
+    *
+    * More complex implementations of {@link FieldDelegate} may add additional behavior.
+    */
    @SuppressWarnings("unchecked")
    @Override
    public T get() {
       return (T) this.readField();
    }
 
+   /**
+    * Calls {@link FieldDelegate#writeField(Object)}.
+    *
+    * More complex implementations of {@link FieldDelegate} may add additonal behavior.
+    *
+    * @param value value to set
+    */
    @Override
    public void set(T value) {
       this.writeField(value);
