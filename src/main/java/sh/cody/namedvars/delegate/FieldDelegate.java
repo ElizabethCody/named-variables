@@ -43,7 +43,6 @@ public class FieldDelegate<T> implements Delegate<T> {
       this.field = Objects.requireNonNull(field);
    }
 
-
    /**
     * Commits a value to the {@link Field}.
     *
