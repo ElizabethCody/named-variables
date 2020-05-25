@@ -28,9 +28,9 @@ public class Example {
 
    public Example() throws VariableScopeException {
       scope = new Scope();
-      colorCode1 = scope.newVariable("colorCode1", int.class, 0x00ff00); // Create a variable at runtime whose storage
-                                                                         // is managed by named-vars.
-      scope.importAllVariables(this); // Adds all variables decorated with @GenerateVariable to the scope.
+      colorCode1 = scope.create("colorCode1", int.class, 0x00ff00); // Create a variable at runtime whose storage
+                                                                    // is managed by named-vars.
+      scope.importAll(this); // Adds all variables decorated with @GenerateVariable to the scope.
       namedVarsExample();
    }
 
