@@ -1,8 +1,9 @@
 # named-variables
 
 This library facilitates mutable access, with built-in parsing, to primitive types (e.g. `int`, `double`, `boolean`,
-etc.), boxed types (e.g. `Integer`, `Double`, `Boolean`, etc.), and `String` by allowing names to be assigned to them at runtime. One may find this particularly useful when adding support for
-custom values to an existing configuration system (e.g. when modding a video game).
+etc.), boxed types (e.g. `Integer`, `Double`, `Boolean`, etc.), enums, and `String` by allowing names to be assigned to
+them at runtime. One may find this particularly useful when adding support for custom values to an existing
+configuration system (e.g. when modding a video game).
 
 ## Example
 
