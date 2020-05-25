@@ -35,15 +35,31 @@ public final class Scope implements Iterable<Variable<?>> {
    private final Map<String, Variable<?>> variableMap;
    private final ParserProvider parserProvider;
 
+   /**
+    * Constructs a new {@link Scope} with a {@link SimpleParserProvider}.
+    */
    public Scope() {
       this(new SimpleParserProvider());
    }
 
+   /**
+    * Constructs a new {@link Scope} with the specified {@link ParserProvider}.
+    *
+    * @param parserProvider a parser provider
+    */
    public Scope(ParserProvider parserProvider) {
       this.variableMap = new HashMap<>();
       this.parserProvider = parserProvider;
    }
 
+   /**
+    * Adds an instance of {@link Variable} to the {@link Scope#variableMap}.
+    *
+    * @param variable variable to be added
+    * @param <T> the type of the variable's value
+    * @return the variable that was added
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    private <T> Variable<T> add(Variable<T> variable) throws ScopeException {
       if(this.variableMap.containsKey(variable.getName())) {
          throw new ScopeException("A variable with this name is already defined in this scope.");
@@ -54,28 +70,84 @@ public final class Scope implements Iterable<Variable<?>> {
       return variable;
    }
 
+   /**
+    * Adds a variable to the scope.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param delegate the variable's delegate
+    * @param <T> the variable's type
+    * @return the variable that was added
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    private <T> Variable<T> add(String name, Class<T> type, Delegate<T> delegate) throws ScopeException {
       return this.add(new Variable<>(name, type, this, this.parserProvider.match(type), delegate));
    }
 
+   /**
+    * Adds a variable to the scope using a functional getter and setter.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param getter the variable's getter
+    * @param setter the variable's setter
+    * @param <T> the variable's type
+    * @return the variable that was added
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    public <T> Variable<T> add(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
       throws ScopeException {
       return this.add(name, type, Delegate.fromGetterAndSetter(getter, setter));
    }
 
+   /**
+    * Creates a new variable in the scope.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param <T> the variable's type
+    * @return the variable that was created
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    public <T> Variable<T> create(String name, Class<T> type) throws ScopeException {
       return this.create(name, type, null);
    }
 
+   /**
+    * Creates a new variable in the scope.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param value the variable's value
+    * @param <T> the variable's type
+    * @return the variable that was created
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    public <T> Variable<T> create(String name, Class<T> type, T value) throws ScopeException {
       return this.add(name, type, new StoredValueDelegate<>(value));
    }
 
+   /**
+    * Imports a field annotated with {@link GenerateVariable} into the scope as a variable.
+    *
+    * @param instance the field's parent instance
+    * @param field the field
+    * @param <T> the variable's type
+    * @return the variable that was imported
+    * @throws ScopeException the scope already contains a variable with this name
+    */
    public <T> Variable<T> importField(Object instance, Field field) throws ScopeException {
       GenerateVariableResolver resolver = new GenerateVariableResolver(instance, field);
       return this.add(resolver.getName(), resolver.getType(), resolver.getDelegate());
    }
 
+   /**
+    * Imports all fields annotated with {@link GenerateVariable} within an instance into the scope as variables.
+    *
+    * @param instance an instance
+    * @return an array containing all variables that were imported
+    * @throws ScopeException one or more of the field's variable names already exist within the scope
+    */
    public Variable<?>[] importAll(Object instance) throws ScopeException {
       List<Variable<?>> variables = new ArrayList<>();
       for(Field field : instance.getClass().getDeclaredFields()) {
@@ -86,15 +158,32 @@ public final class Scope implements Iterable<Variable<?>> {
       return variables.toArray(new Variable<?>[0]);
    }
 
+   /**
+    * Retrieves a variable from the scope.
+    *
+    * @param name the variable's name
+    * @param <T> the variable's type
+    * @return the variable or {@code null} if it doesn't exist
+    */
    @SuppressWarnings("unchecked")
    public <T> Variable<T> get(String name) {
       return (Variable<T>) this.variableMap.get(name);
    }
 
+   /**
+    * Returns a stream containing all variables in the scope.
+    *
+    * @return a stream containing all the variables in the scope
+    */
    public Stream<Variable<?>> stream() {
       return this.variableMap.values().stream();
    }
 
+   /**
+    * Returns an iterator to iterate over every variable in the scope.
+    *
+    * @return an iterator to iterate over every variable in the scope
+    */
    @Override
    public Iterator<Variable<?>> iterator() {
       return this.variableMap.values().iterator();
