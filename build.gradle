@@ -1,56 +1,12 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
 }
 
-group = 'sh.cody'
-version = '1.0.0'
-
-java {
-    withSourcesJar()
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = rootProject.name
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
-                name = 'named-variables'
-                description = ''
-                url = 'https://github.com/MaxwellCody/named-variables'
-                licenses {
-                    license {
-                        name = 'The MIT License'
-                        url = 'https://spdx.org/licenses/MIT.html'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'mc'
-                        name = 'Maxwell Cody'
-                        email = 'maxwell@cody.sh'
-                    }
-                }
-                scm {
-                    url = 'https://github.com/MaxwellCody/named-variables'
-                }
-                repositories {
-                    maven {
-                        url = "$buildDir/repos/releases"
-                    }
-                }
-            }
-        }
-    }
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -59,4 +15,77 @@ repositories {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name 'The MIT License'
+            url 'https://spdx.org/licenses/MIT.html'
+            distribution 'repo'
+        }
+    }
+
+    developers {
+        developer {
+            id 'maxwellcody'
+            name 'Maxwell Cody'
+            email 'maxwell@cody.sh'
+        }
+    }
+
+    scm {
+        url projectUrl
+    }
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            artifactId projectName
+            groupId projectGroup
+            version projectVersion
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', projectName)
+                root.appendNode('description', '')
+                root.appendNode('url', projectUrl)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getProperty('bintray.user')
+    key = System.getProperty('bintray.key')
+    publications = ['mavenPublication']
+
+    pkg {
+        repo = projectName
+        name = projectName
+        userOrg = 'maxwellcody'
+        licenses = ['MIT']
+        vcsUrl = projectUrl
+        version {
+            name = projectVersion
+            desc = projectVersion
+            released = new Date()
+        }
+    }
 }
