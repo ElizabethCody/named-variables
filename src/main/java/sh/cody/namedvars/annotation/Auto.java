@@ -20,49 +20,7 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars;
+package sh.cody.namedvars.annotation;
 
-import sh.cody.namedvars.parse.Parser;
-import java.util.Objects;
-
-public abstract class Variable<T> {
-   private final String name;
-   private final Class<T> type;
-   private final Scope scope;
-   private final Parser<T> parser;
-
-   protected Variable(String name, Class<T> type, Scope scope, Parser<T> parser) {
-      this.name = Objects.requireNonNull(name);
-      this.type = Objects.requireNonNull(type);
-      this.scope = Objects.requireNonNull(scope);
-      this.parser = parser;
-   }
-
-   public abstract T get();
-   public abstract void set(T value);
-
-   public final String getName() {
-      return this.name;
-   }
-
-   public final Class<T> getType() {
-      return this.type;
-   }
-
-   public final Scope getScope() {
-      return this.scope;
-   }
-
-   public final void parse(String str) {
-      if(this.parser == null) {
-         throw new RuntimeException("This variable does not support parsing.");
-      }
-
-      this.set(this.parser.parse(str));
-   }
-
-   @Override
-   public String toString() {
-      return String.valueOf(this.get());
-   }
+public interface Auto {
 }

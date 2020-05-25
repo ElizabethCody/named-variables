@@ -20,22 +20,23 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars.value;
+package sh.cody.namedvars.test;
 
-public final class StoredValue<T> implements Value<T> {
-   private T value;
+import sh.cody.namedvars.Scope;
+import sh.cody.namedvars.annotation.GenerateVariable;
+import sh.cody.namedvars.exception.VariableScopeException;
 
-   public StoredValue(T value) {
-      this.value = value;
-   }
+import java.util.HashSet;
+import java.util.Set;
 
-   @Override
-   public T get() {
-      return this.value;
-   }
+public class StringSetTest {
+   @GenerateVariable(value = "testSet", type = String.class, proxy = ReferenceSetStringProxy.class)
+   public final Set<String> set = new HashSet<>();
 
-   @Override
-   public void set(T value) {
-      this.value = value;
+   public StringSetTest() throws VariableScopeException {
+      Scope scope = new Scope();
+      scope.importAllVariables(this);
+
+      scope.get("testSet").set("i,like,pie");
    }
 }

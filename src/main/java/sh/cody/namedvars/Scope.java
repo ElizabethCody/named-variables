@@ -22,10 +22,11 @@
 
 package sh.cody.namedvars;
 
+import sh.cody.namedvars.annotation.GenerateVariableResolver;
 import sh.cody.namedvars.exception.*;
 import sh.cody.namedvars.parse.*;
-import sh.cody.namedvars.value.*;
-import java.lang.reflect.*;
+import sh.cody.namedvars.proxy.Proxy;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -54,13 +55,13 @@ public final class Scope implements Iterable<Variable<?>> {
       return variable;
    }
 
-   private <T> Variable<T> addProxyVariable(String name, Class<T> type, Value<T> value) throws VariableScopeException {
-      return this.addVariable(new ValueVariable<>(name, type, this, this.parserProvider.match(type), value));
+   private <T> Variable<T> addProxyVariable(String name, Class<T> type, Proxy<T> proxy) throws VariableScopeException {
+      return this.addVariable(new ProxyVariable<>(name, type, this, this.parserProvider.match(type), proxy));
    }
 
    public <T> Variable<T> addProxyVariable(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
       throws VariableScopeException {
-      return this.addProxyVariable(name, type, new FunctionalValue<>(getter, setter));
+      return this.addProxyVariable(name, type, Proxy.fromGetterAndSetter(getter, setter));
    }
 
    public <T> Variable<T> newVariable(String name, Class<T> type) throws VariableScopeException {
@@ -68,36 +69,23 @@ public final class Scope implements Iterable<Variable<?>> {
    }
 
    public <T> Variable<T> newVariable(String name, Class<T> type, T value) throws VariableScopeException {
-      Variable<T> variable = new ValueVariable<>(name, type, this, this.parserProvider.match(type),
-            new StoredValue<>(value));
+      Variable<T> variable = new StoredVariable<>(name, type, this, this.parserProvider.match(type), value);
 
       return this.addVariable(variable);
    }
 
-   public <T> Variable<T> importVariableFromField(Object instance, Field field)
-         throws GenerateVariableException, VariableScopeException {
-      GenerateVariable annotation = field.getAnnotation(GenerateVariable.class);
-
-      if(annotation == null) {
-         throw new GenerateVariableException("This field is not properly annotated.");
-      } else {
-         String name = "".equals(annotation.value()) ? field.getName() : annotation.value();
-         Class<T> type = (Class<T>) field.getType();
-         ReflectedValue<T> value = new ReflectedValue<>(instance, field);
-         return this.addVariable(new ValueVariable<>(name, type, this, this.parserProvider.match(type), value));
-      }
+   public <T> Variable<T> importVariableFromField(Object instance, Field field) throws VariableScopeException {
+      GenerateVariableResolver resolver = new GenerateVariableResolver(instance, field);
+      return this.addProxyVariable(resolver.getName(), (Class<T>) resolver.getType(), (Proxy<T>) resolver.getProxy());
    }
 
    public Variable<?>[] importAllVariables(Object instance) throws VariableScopeException {
       List<Variable<?>> variables = new ArrayList<>();
-
       for(Field field : instance.getClass().getDeclaredFields()) {
          try {
-            Variable<?> variable = this.importVariableFromField(instance, field);
-            variables.add(variable);
-         } catch(GenerateVariableException ignored) { }
+            variables.add(this.importVariableFromField(instance, field));
+         } catch(NullPointerException ignored) {}
       }
-
       return variables.toArray(new Variable<?>[0]);
    }
 

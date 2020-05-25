@@ -20,12 +20,15 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars;
+package sh.cody.namedvars.annotation;
 
+import sh.cody.namedvars.proxy.*;
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface GenerateVariable {
    String value() default "";
+   Class<?extends Proxy> proxy() default TransparentFieldProxy.class;
+   Class<?> type() default Auto.class;
 }

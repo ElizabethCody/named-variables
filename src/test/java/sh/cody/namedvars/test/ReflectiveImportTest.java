@@ -22,7 +22,7 @@
 
 package sh.cody.namedvars.test;
 
-import sh.cody.namedvars.GenerateVariable;
+import sh.cody.namedvars.annotation.GenerateVariable;
 import sh.cody.namedvars.Scope;
 import sh.cody.namedvars.exception.VariableScopeException;
 

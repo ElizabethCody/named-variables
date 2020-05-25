@@ -23,60 +23,24 @@
 package sh.cody.namedvars;
 
 import sh.cody.namedvars.parse.Parser;
-import sh.cody.namedvars.value.Value;
+import sh.cody.namedvars.proxy.Proxy;
 import java.util.Objects;
 
-public final class ValueVariable<T> implements Variable<T> {
-   private final String name;
-   private final Class<T> type;
-   private final Scope scope;
-   private final Parser<T> parser;
-   private final Value<T> value;
+public final class ProxyVariable<T> extends Variable<T> {
+   private final Proxy<T> proxy;
 
-   ValueVariable(String name, Class<T> type, Scope scope, Parser<T> parser, Value<T> value) {
-      this.name = Objects.requireNonNull(name);
-      this.type = Objects.requireNonNull(type);
-      this.scope = Objects.requireNonNull(scope);
-      this.parser = parser;
-      this.value = Objects.requireNonNull(value);
-   }
-
-   @Override
-   public String getName() {
-      return this.name;
-   }
-
-   @Override
-   public Class<T> getType() {
-      return this.type;
-   }
-
-   @Override
-   public Scope getScope() {
-      return this.scope;
+   ProxyVariable(String name, Class<T> type, Scope scope, Parser<T> parser, Proxy<T> proxy) {
+      super(name, type, scope, parser);
+      this.proxy = Objects.requireNonNull(proxy);
    }
 
    @Override
    public T get() {
-      return this.value.get();
+      return this.proxy.get();
    }
 
    @Override
    public void set(T value) {
-      this.value.set(value);
-   }
-
-   @Override
-   public void parse(String str) {
-      if(this.parser == null) {
-         throw new RuntimeException("This variable does not support parsing.");
-      }
-
-      this.set(this.parser.parse(str));
-   }
-
-   @Override
-   public String toString() {
-      return String.valueOf(this.get());
+      this.proxy.set(value);
    }
 }

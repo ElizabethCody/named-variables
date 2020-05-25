@@ -20,38 +20,25 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars.value;
+package sh.cody.namedvars;
 
-import java.lang.reflect.Field;
-import java.util.Objects;
+import sh.cody.namedvars.parse.Parser;
 
-@SuppressWarnings("unchecked")
-public final class ReflectedValue<T> implements Value<T> {
-   private final Object instance;
-   private final Field field;
+public final class StoredVariable<T> extends Variable<T> {
+   private T value;
 
-   public ReflectedValue(Object instance, Field field) {
-      this.instance = Objects.requireNonNull(instance);
-      this.field = Objects.requireNonNull(field);
+   StoredVariable(String name, Class<T> type, Scope scope, Parser<T> parser, T value) {
+      super(name, type, scope, parser);
+      this.value = value;
    }
 
    @Override
    public T get() {
-      try {
-         this.field.setAccessible(true);
-         return (T) this.field.get(this.instance);
-      } catch(IllegalAccessException exception) {
-         throw new RuntimeException("Could not read from reflected field.", exception);
-      }
+      return this.value;
    }
 
    @Override
    public void set(T value) {
-      try {
-         this.field.setAccessible(true);
-         this.field.set(this.instance, value);
-      } catch(IllegalAccessException exception) {
-         throw new RuntimeException("Could not write to reflected field.", exception);
-      }
+      this.value = value;
    }
 }

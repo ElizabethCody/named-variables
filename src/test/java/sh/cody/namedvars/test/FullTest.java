@@ -64,4 +64,12 @@ public class FullTest {
 
       scope.newVariable("test", String.class, "Foobar");
    }
+
+   @Test
+   public void testStringSet() throws VariableScopeException {
+      StringSetTest stringSetTest = new StringSetTest();
+      assertTrue(stringSetTest.set.contains("i"));
+      assertTrue(stringSetTest.set.contains("like"));
+      assertTrue(stringSetTest.set.contains("pie"));
+   }
 }

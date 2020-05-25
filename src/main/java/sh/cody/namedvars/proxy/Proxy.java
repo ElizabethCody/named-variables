@@ -20,49 +20,38 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars;
+package sh.cody.namedvars.proxy;
 
-import sh.cody.namedvars.parse.Parser;
-import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public abstract class Variable<T> {
-   private final String name;
-   private final Class<T> type;
-   private final Scope scope;
-   private final Parser<T> parser;
+public interface Proxy<T> {
+   /*
+    * For a proxy to be used in an @GenerateVariable annotation it must implement one of two constructors depending on
+    * where the true value is stored.
+    *
+    * Case 1, in a field:
+    *    Proxy(Object instance, Field field)
+    *
+    * Case 2, in a mutable reference type:
+    *    Proxy(YourType x)
+    *
+    */
 
-   protected Variable(String name, Class<T> type, Scope scope, Parser<T> parser) {
-      this.name = Objects.requireNonNull(name);
-      this.type = Objects.requireNonNull(type);
-      this.scope = Objects.requireNonNull(scope);
-      this.parser = parser;
-   }
+   T get();
+   void set(T value);
 
-   public abstract T get();
-   public abstract void set(T value);
+   static <T> Proxy<T> fromGetterAndSetter(Supplier<T> getter, Consumer<T> setter) {
+      return new Proxy<T>() {
+         @Override
+         public T get() {
+            return getter.get();
+         }
 
-   public final String getName() {
-      return this.name;
-   }
-
-   public final Class<T> getType() {
-      return this.type;
-   }
-
-   public final Scope getScope() {
-      return this.scope;
-   }
-
-   public final void parse(String str) {
-      if(this.parser == null) {
-         throw new RuntimeException("This variable does not support parsing.");
-      }
-
-      this.set(this.parser.parse(str));
-   }
-
-   @Override
-   public String toString() {
-      return String.valueOf(this.get());
+         @Override
+         public void set(T value) {
+            setter.accept(value);
+         }
+      };
    }
 }

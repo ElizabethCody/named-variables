@@ -1,5 +1,56 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'sh.cody'
+version = '1.0.0'
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = rootProject.name
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'named-variables'
+                description = ''
+                url = 'https://github.com/MaxwellCody/named-variables'
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'https://spdx.org/licenses/MIT.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'mc'
+                        name = 'Maxwell Cody'
+                        email = 'maxwell@cody.sh'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/MaxwellCody/named-variables'
+                }
+                repositories {
+                    maven {
+                        url = "$buildDir/repos/releases"
+                    }
+                }
+            }
+        }
+    }
 }
 
 repositories {

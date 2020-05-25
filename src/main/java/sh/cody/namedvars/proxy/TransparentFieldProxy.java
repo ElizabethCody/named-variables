@@ -20,9 +20,37 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars.value;
+package sh.cody.namedvars.proxy;
 
-public interface Value<T> {
-   T get();
-   void set(T value);
+import java.lang.reflect.Field;
+
+@SuppressWarnings("rawtypes")
+public final class TransparentFieldProxy implements Proxy {
+   private final Object instance;
+   private final Field field;
+
+   public TransparentFieldProxy(Object instance, Field field) {
+      this.instance = instance;
+      this.field = field;
+   }
+
+   @Override
+   public Object get() {
+      try {
+         this.field.setAccessible(true);
+         return this.field.get(this.instance);
+      } catch(IllegalAccessException exception) {
+         throw new RuntimeException("Failed to read from reflected field.", exception);
+      }
+   }
+
+   @Override
+   public void set(Object value) {
+      try {
+         this.field.setAccessible(true);
+         this.field.set(this.instance, value);
+      } catch(IllegalAccessException exception) {
+         throw new RuntimeException("Failed to write to reflected field.", exception);
+      }
+   }
 }
