@@ -22,13 +22,13 @@
 
 package sh.cody.namedvars.annotation;
 
-import sh.cody.namedvars.proxy.*;
+import sh.cody.namedvars.delegate.*;
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface GenerateVariable {
    String value() default "";
-   Class<?extends Proxy> proxy() default TransparentFieldProxy.class;
+   Class<?extends Delegate> delegate() default FieldDelegate.class;
    Class<?> type() default Auto.class;
 }

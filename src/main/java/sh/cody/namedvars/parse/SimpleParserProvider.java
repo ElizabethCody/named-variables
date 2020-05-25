@@ -22,20 +22,10 @@
 
 package sh.cody.namedvars.parse;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SimpleParserProvider extends ParserProvider {
-   private final boolean caseSensitiveEnums;
-
-   public SimpleParserProvider(boolean caseSensitiveEnums) {
-      this.caseSensitiveEnums = caseSensitiveEnums;
-   }
-
    @Override
    public <T> Parser<T> match(Class<T> type) {
-      if(type.isEnum()) {
-         return Parser.fromEnum(type, this.caseSensitiveEnums);
-      }
-
       return matcher(type,
             parserFor(boolean.class, Boolean::parseBoolean),
             parserFor(byte.class, Byte::parseByte),
@@ -53,7 +43,15 @@ public final class SimpleParserProvider extends ParserProvider {
             parserFor(Long.class, Parser.nullChecked(Long::parseLong)),
             parserFor(Float.class, Parser.nullChecked(Float::parseFloat)),
             parserFor(Double.class, Parser.nullChecked(Double::parseDouble)),
-            parserFor(String.class, String::valueOf)
+            parserFor(String.class, String::valueOf),
+            parserFor(Enum.class, str -> {
+              try {
+                 return Enum.valueOf((Class) type, str);
+              } catch(IllegalArgumentException ignored) {
+                 // if the first lookup failed we'll try again in upper case.
+                 return Enum.valueOf((Class) type, str.toUpperCase());
+              }
+            })
       );
    }
 }

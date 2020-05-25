@@ -25,11 +25,12 @@ package sh.cody.namedvars.test;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import sh.cody.namedvars.Scope;
-import sh.cody.namedvars.exception.VariableScopeException;
+import sh.cody.namedvars.Variable;
+import sh.cody.namedvars.exception.ScopeException;
 
 public class FullTest {
    @Test
-   public void testReflectiveImport() throws VariableScopeException {
+   public void testReflectiveImport() throws ScopeException {
       ReflectiveImportTest test = new ReflectiveImportTest(new Scope());
 
       assertTrue(test.inferredNameBoolean);
@@ -51,25 +52,51 @@ public class FullTest {
       assertEquals(test.explicitNameDouble, 1.0, 0.000001);
    }
 
-   @Test(expected = VariableScopeException.class)
-   public void testDoubleAdd() throws VariableScopeException {
+   @Test(expected = ScopeException.class)
+   public void testDoubleAdd() throws ScopeException {
       Scope scope = new Scope();
 
       try {
-         scope.newVariable("test", String.class, "Hello, World!");
-      } catch(VariableScopeException exception) {
+         scope.create("test", String.class, "Hello, World!");
+      } catch(ScopeException exception) {
          fail("Exception occurred after one call.");
          exception.printStackTrace();
       }
 
-      scope.newVariable("test", String.class, "Foobar");
+      scope.create("test", String.class, "Foobar");
    }
 
    @Test
-   public void testStringSet() throws VariableScopeException {
+   public void testStringSet() throws ScopeException {
       StringSetTest stringSetTest = new StringSetTest();
       assertTrue(stringSetTest.set.contains("i"));
       assertTrue(stringSetTest.set.contains("like"));
       assertTrue(stringSetTest.set.contains("pie"));
+   }
+
+   @Test
+   public void testParsers() throws ScopeException {
+      Scope scope = new Scope();
+      Variable<String> string = scope.create("string", String.class);
+      string.parse("i like pie");
+      Variable dbl = scope.create("double", double.class);
+      dbl.parse("1.337");
+      Variable integer = scope.create("integer", int.class);
+      integer.parse("1337");
+      Variable<TestEnum> enumVar = scope.create("enum", TestEnum.class);
+      enumVar.parse("PIE");
+
+      assertEquals(string.get(), "i like pie");
+      assertEquals((double) dbl.get(), 1.337, 0.001);
+      assertEquals((int) integer.get(), 1337);
+      assertEquals(enumVar.get(), TestEnum.PIE);
+      enumVar.parse("like");
+      assertEquals(enumVar.get(), TestEnum.LIKE);
+   }
+
+   public enum TestEnum {
+      I,
+      LIKE,
+      PIE;
    }
 }

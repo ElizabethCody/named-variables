@@ -24,19 +24,18 @@ package sh.cody.namedvars.test;
 
 import sh.cody.namedvars.Scope;
 import sh.cody.namedvars.annotation.GenerateVariable;
-import sh.cody.namedvars.exception.VariableScopeException;
-
+import sh.cody.namedvars.exception.ScopeException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class StringSetTest {
-   @GenerateVariable(value = "testSet", type = String.class, proxy = ReferenceSetStringProxy.class)
-   public final Set<String> set = new HashSet<>();
+   @GenerateVariable(value = "testSet", type = String.class, delegate = StringSetDelegate.class)
+   public Set<String> set = new HashSet<>();
 
-   public StringSetTest() throws VariableScopeException {
+   public StringSetTest() throws ScopeException {
       Scope scope = new Scope();
-      scope.importAllVariables(this);
+      scope.importAll(this);
 
-      scope.get("testSet").set("i,like,pie");
+      scope.get("testSet").parse("i,like,pie");
    }
 }

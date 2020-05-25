@@ -24,7 +24,7 @@ package sh.cody.namedvars.test;
 
 import sh.cody.namedvars.annotation.GenerateVariable;
 import sh.cody.namedvars.Scope;
-import sh.cody.namedvars.exception.VariableScopeException;
+import sh.cody.namedvars.exception.ScopeException;
 
 public class ReflectiveImportTest {
    // Inferred names
@@ -63,8 +63,8 @@ public class ReflectiveImportTest {
    @GenerateVariable("double")
    public double explicitNameDouble = 2.0;
    
-   ReflectiveImportTest(Scope scope) throws VariableScopeException {
-      scope.importAllVariables(this);
+   ReflectiveImportTest(Scope scope) throws ScopeException {
+      scope.importAll(this);
       fiddle(scope);
    }
    

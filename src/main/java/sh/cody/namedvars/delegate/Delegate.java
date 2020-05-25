@@ -20,29 +20,38 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars.proxy;
+package sh.cody.namedvars.delegate;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 
-public interface Proxy<T> {
-   /*
-    * For a proxy to be used in an @GenerateVariable annotation it must implement one of two constructors depending on
-    * where the true value is stored.
-    *
-    * Case 1, in a field:
-    *    Proxy(Object instance, Field field)
-    *
-    * Case 2, in a mutable reference type:
-    *    Proxy(YourType x)
-    *
-    */
-
+/**
+ * This interface is implemented by classes that are intended to facilitate access to a variable's actual storage
+ * location.
+ *
+ * <b>Note:</b> only implementations with a constructor matching
+ * {@code
+ *     Delegate(Object instance, Field field)
+ * }
+ * can be instantiated by {@link sh.cody.namedvars.annotation.GenerateVariableResolver}; therefore, for a
+ * {@link Delegate} to be specified inside a {@link sh.cody.namedvars.annotation.GenerateVariable} annotation, it must
+ * implement this constructor.
+ *
+ * @param <T> the type of the stored value as its known by the Scope
+ */
+public interface Delegate<T> {
    T get();
    void set(T value);
 
-   static <T> Proxy<T> fromGetterAndSetter(Supplier<T> getter, Consumer<T> setter) {
-      return new Proxy<T>() {
+   /**
+    * Generates an implementation of {@link Delegate} from a functional getter and setter.
+    *
+    * @param getter Value getter as a {@link Supplier}
+    * @param setter Value setter as a {@link Consumer}
+    * @param <T> the type of the stored value as its known by the Scope
+    * @return an implementation of Delegate
+    */
+   static <T> Delegate<T> fromGetterAndSetter(Supplier<T> getter, Consumer<T> setter) {
+      return new Delegate<>() {
          @Override
          public T get() {
             return getter.get();

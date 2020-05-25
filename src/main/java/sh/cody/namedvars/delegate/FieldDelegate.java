@@ -20,27 +20,50 @@
  * SOFTWARE.
  */
 
-package sh.cody.namedvars;
+package sh.cody.namedvars.delegate;
 
-import sh.cody.namedvars.parse.Parser;
-import sh.cody.namedvars.proxy.Proxy;
-import java.util.Objects;
+import java.lang.reflect.Field;
 
-public final class ProxyVariable<T> extends Variable<T> {
-   private final Proxy<T> proxy;
+public class FieldDelegate<T> implements Delegate<T> {
+   private final Object instance;
+   private final Field field;
 
-   ProxyVariable(String name, Class<T> type, Scope scope, Parser<T> parser, Proxy<T> proxy) {
-      super(name, type, scope, parser);
-      this.proxy = Objects.requireNonNull(proxy);
+   public FieldDelegate(Object instance, Field field) {
+      this.instance = instance;
+      this.field = field;
    }
 
+   /*
+    * The readField() & writeField() methods are separate from the get() & set() methods for the convenience of
+    * descendant classes.
+    */
+
+   protected final void writeField(Object value) {
+      try {
+         this.field.setAccessible(true);
+         this.field.set(this.instance, value);
+      } catch(IllegalAccessException exception) {
+         throw new RuntimeException("Failed to write to reflected field.", exception);
+      }
+   }
+
+   protected final Object readField() {
+      try {
+         this.field.setAccessible(true);
+         return this.field.get(this.instance);
+      } catch(IllegalAccessException exception) {
+         throw new RuntimeException("Failed to read from reflected field.", exception);
+      }
+   }
+
+   @SuppressWarnings("unchecked")
    @Override
    public T get() {
-      return this.proxy.get();
+      return (T) this.readField();
    }
 
    @Override
    public void set(T value) {
-      this.proxy.set(value);
+      this.writeField(value);
    }
 }

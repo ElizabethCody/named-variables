@@ -23,37 +23,45 @@
 package sh.cody.namedvars;
 
 import sh.cody.namedvars.parse.Parser;
+import sh.cody.namedvars.delegate.Delegate;
 import java.util.Objects;
 
-public abstract class Variable<T> {
+public final class Variable<T> {
    private final String name;
    private final Class<T> type;
    private final Scope scope;
    private final Parser<T> parser;
+   private final Delegate<T> delegate;
 
-   protected Variable(String name, Class<T> type, Scope scope, Parser<T> parser) {
+   Variable(String name, Class<T> type, Scope scope, Parser<T> parser, Delegate<T> delegate) {
       this.name = Objects.requireNonNull(name);
       this.type = Objects.requireNonNull(type);
       this.scope = Objects.requireNonNull(scope);
       this.parser = parser;
+      this.delegate = Objects.requireNonNull(delegate);
    }
 
-   public abstract T get();
-   public abstract void set(T value);
+   public T get() {
+      return this.delegate.get();
+   }
 
-   public final String getName() {
+   public void set(T value) {
+      this.delegate.set(value);
+   }
+
+   public String getName() {
       return this.name;
    }
 
-   public final Class<T> getType() {
+   public Class<T> getType() {
       return this.type;
    }
 
-   public final Scope getScope() {
+   public Scope getScope() {
       return this.scope;
    }
 
-   public final void parse(String str) {
+   public void parse(String str) {
       if(this.parser == null) {
          throw new RuntimeException("This variable does not support parsing.");
       }

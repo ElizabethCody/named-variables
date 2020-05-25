@@ -36,27 +36,4 @@ public interface Parser<T> {
          }
       };
    }
-
-   /**
-    * Generates a parser from an enum type. The resultant parser will match strings to the given enum's values based on
-    * their toString() value. Java's default toString() method returns the value's name as its defined in code, but this
-    * can be overridden.
-    *
-    * @param enumClass Class object for the enum
-    * @param <T> enum type
-    * @param caseSensitive whether the resultant parser will be case sensitive
-    * @return a parser matching the enum's values
-    */
-   static <T> Parser<T> fromEnum(Class<T> enumClass, boolean caseSensitive) {
-      if(enumClass.isEnum()) {
-         Map<String, T> values = new HashMap<>();
-         for(T value : enumClass.getEnumConstants()) {
-            values.put(caseSensitive ? value.toString() : value.toString().toLowerCase(), value);
-         }
-
-         return str -> values.get(caseSensitive ? str : str.toLowerCase());
-      } else {
-         throw new RuntimeException("The specified type is not an enum.");
-      }
-   }
 }

@@ -22,12 +22,11 @@
 
 package sh.cody.namedvars.annotation;
 
-import sh.cody.namedvars.proxy.Proxy;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import sh.cody.namedvars.delegate.Delegate;
+import java.lang.reflect.*;
 import java.util.Objects;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class GenerateVariableResolver {
    private final Object instance;
    private final Field field;
@@ -44,28 +43,18 @@ public final class GenerateVariableResolver {
       return "".equals(this.generateAnnotation.value()) ? this.field.getName() : this.generateAnnotation.value();
    }
 
-   public Class<?> getType() {
-      return this.generateAnnotation.type() == Auto.class ? this.field.getType() : this.generateAnnotation.type();
+   public <T> Class<T> getType() {
+      return this.generateAnnotation.type() == Auto.class ? (Class<T>) this.field.getType() :
+              (Class<T>) this.generateAnnotation.type();
    }
 
-   public Proxy<?> getProxy() {
-      Class<?extends Proxy> proxyClass = generateAnnotation.proxy();
+   public <T> Delegate<T> getDelegate() {
+      Class<?extends Delegate> delegateClass = generateAnnotation.delegate();
 
       try {
-         return proxyClass.getConstructor(Object.class, Field.class).newInstance(this.instance, this.field);
-      } catch(NoSuchMethodException ignored) {
-      } catch(IllegalAccessException | InvocationTargetException | InstantiationException exception) {
-         throw new RuntimeException("Failed to create proxy.", exception);
-      }
-
-      if(!Modifier.isFinal(this.field.getModifiers())) {
-         throw new RuntimeException("Field should be final to use a reference proxy.");
-      }
-
-      try {
-         return proxyClass.getConstructor(field.getType()).newInstance(this.field.get(this.instance));
-      } catch(Exception exception) {
-         throw new RuntimeException("Failed to create proxy.", exception);
+         return delegateClass.getConstructor(Object.class, Field.class).newInstance(this.instance, this.field);
+      } catch(IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
+         throw new RuntimeException("Failed to create delegate.", e);
       }
    }
 }

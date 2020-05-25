@@ -22,22 +22,21 @@
 
 package sh.cody.namedvars;
 
-import sh.cody.namedvars.annotation.GenerateVariableResolver;
+import sh.cody.namedvars.annotation.*;
 import sh.cody.namedvars.exception.*;
 import sh.cody.namedvars.parse.*;
-import sh.cody.namedvars.proxy.Proxy;
-import java.lang.reflect.Field;
+import sh.cody.namedvars.delegate.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
-@SuppressWarnings("unchecked")
 public final class Scope implements Iterable<Variable<?>> {
    private final Map<String, Variable<?>> variableMap;
    private final ParserProvider parserProvider;
 
    public Scope() {
-      this(new SimpleParserProvider(false));
+      this(new SimpleParserProvider());
    }
 
    public Scope(ParserProvider parserProvider) {
@@ -45,9 +44,9 @@ public final class Scope implements Iterable<Variable<?>> {
       this.parserProvider = parserProvider;
    }
 
-   private <T> Variable<T> addVariable(Variable<T> variable) throws VariableScopeException {
+   private <T> Variable<T> add(Variable<T> variable) throws ScopeException {
       if(this.variableMap.containsKey(variable.getName())) {
-         throw new VariableScopeException("A Variable with this name is already defined in this scope.");
+         throw new ScopeException("A variable with this name is already defined in this scope.");
       } else {
          this.variableMap.put(variable.getName(), variable);
       }
@@ -55,40 +54,39 @@ public final class Scope implements Iterable<Variable<?>> {
       return variable;
    }
 
-   private <T> Variable<T> addProxyVariable(String name, Class<T> type, Proxy<T> proxy) throws VariableScopeException {
-      return this.addVariable(new ProxyVariable<>(name, type, this, this.parserProvider.match(type), proxy));
+   private <T> Variable<T> add(String name, Class<T> type, Delegate<T> delegate) throws ScopeException {
+      return this.add(new Variable<>(name, type, this, this.parserProvider.match(type), delegate));
    }
 
-   public <T> Variable<T> addProxyVariable(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
-      throws VariableScopeException {
-      return this.addProxyVariable(name, type, Proxy.fromGetterAndSetter(getter, setter));
+   public <T> Variable<T> add(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
+      throws ScopeException {
+      return this.add(name, type, Delegate.fromGetterAndSetter(getter, setter));
    }
 
-   public <T> Variable<T> newVariable(String name, Class<T> type) throws VariableScopeException {
-      return this.newVariable(name, type, null);
+   public <T> Variable<T> create(String name, Class<T> type) throws ScopeException {
+      return this.create(name, type, null);
    }
 
-   public <T> Variable<T> newVariable(String name, Class<T> type, T value) throws VariableScopeException {
-      Variable<T> variable = new StoredVariable<>(name, type, this, this.parserProvider.match(type), value);
-
-      return this.addVariable(variable);
+   public <T> Variable<T> create(String name, Class<T> type, T value) throws ScopeException {
+      return this.add(name, type, new StoredValueDelegate<>(value));
    }
 
-   public <T> Variable<T> importVariableFromField(Object instance, Field field) throws VariableScopeException {
+   public <T> Variable<T> importField(Object instance, Field field) throws ScopeException {
       GenerateVariableResolver resolver = new GenerateVariableResolver(instance, field);
-      return this.addProxyVariable(resolver.getName(), (Class<T>) resolver.getType(), (Proxy<T>) resolver.getProxy());
+      return this.add(resolver.getName(), resolver.getType(), resolver.getDelegate());
    }
 
-   public Variable<?>[] importAllVariables(Object instance) throws VariableScopeException {
+   public Variable<?>[] importAll(Object instance) throws ScopeException {
       List<Variable<?>> variables = new ArrayList<>();
       for(Field field : instance.getClass().getDeclaredFields()) {
          try {
-            variables.add(this.importVariableFromField(instance, field));
+            variables.add(this.importField(instance, field));
          } catch(NullPointerException ignored) {}
       }
       return variables.toArray(new Variable<?>[0]);
    }
 
+   @SuppressWarnings("unchecked")
    public <T> Variable<T> get(String name) {
       return (Variable<T>) this.variableMap.get(name);
    }

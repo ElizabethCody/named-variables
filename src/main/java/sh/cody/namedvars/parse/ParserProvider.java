@@ -41,6 +41,6 @@ public abstract class ParserProvider {
    }
 
    protected static <T> Function<Class, Parser> parserFor(Class<T> parserType, Parser<T> parser) {
-      return type -> Optional.of(type).filter(parserType::equals).map(ignored -> parser).orElse(null);
+      return type -> Optional.of(type).filter(parserType::isAssignableFrom).map(ignored -> parser).orElse(null);
    }
 }
