@@ -41,26 +41,56 @@ public final class Variable<T> {
       this.delegate = Objects.requireNonNull(delegate);
    }
 
+   /**
+    * Returns the variable's value.
+    *
+    * @return the variable's value
+    */
    public T get() {
       return this.delegate.get();
    }
 
+   /**
+    * Updates the variable's value.
+    *
+    * @param value the new value
+    */
    public void set(T value) {
       this.delegate.set(value);
    }
 
+   /**
+    * Returns the name of the variable.
+    *
+    * @return the name of the variable
+    */
    public String getName() {
       return this.name;
    }
 
+   /**
+    * Returns the type of the value encapsulated by this variable.
+    *
+    * @return the type of the value encapsulated by this variable
+    */
    public Class<T> getType() {
       return this.type;
    }
 
+   /**
+    * Returns the scope that contains this variable.
+    *
+    * @return the scope that contains this variable
+    */
    public Scope getScope() {
       return this.scope;
    }
 
+   /**
+    * Updates the variable's value from a string.
+    *
+    * @param str unparsed value string
+    */
    public void parse(String str) {
       if(this.parser == null) {
          throw new RuntimeException("This variable does not support parsing.");
@@ -69,6 +99,11 @@ public final class Variable<T> {
       this.set(this.parser.parse(str));
    }
 
+   /**
+    * Returns a string representation of the variable's value.
+    *
+    * @return a string representation of the variable's value
+    */
    @Override
    public String toString() {
       return String.valueOf(this.get());
