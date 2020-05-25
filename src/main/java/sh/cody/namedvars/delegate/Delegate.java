@@ -51,7 +51,7 @@ public interface Delegate<T> {
     * @return an implementation of Delegate
     */
    static <T> Delegate<T> fromGetterAndSetter(Supplier<T> getter, Consumer<T> setter) {
-      return new Delegate<>() {
+      return new Delegate<T>() {
          @Override
          public T get() {
             return getter.get();
