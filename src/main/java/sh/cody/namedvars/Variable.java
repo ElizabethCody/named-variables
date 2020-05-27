@@ -25,6 +25,7 @@ package sh.cody.namedvars;
 import sh.cody.namedvars.parse.Parser;
 import sh.cody.namedvars.delegate.Delegate;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class Variable<T> {
    private final String name;
@@ -32,13 +33,15 @@ public final class Variable<T> {
    private final Scope scope;
    private final Parser<T> parser;
    private final Delegate<T> delegate;
+   private final String description;
 
-   Variable(String name, Class<T> type, Scope scope, Parser<T> parser, Delegate<T> delegate) {
+   Variable(String name, Class<T> type, Scope scope, Parser<T> parser, Delegate<T> delegate, String description) {
       this.name = Objects.requireNonNull(name);
       this.type = Objects.requireNonNull(type);
       this.scope = Objects.requireNonNull(scope);
       this.parser = parser;
       this.delegate = Objects.requireNonNull(delegate);
+      this.description = Optional.ofNullable(description).orElse("");
    }
 
    /**
@@ -84,6 +87,15 @@ public final class Variable<T> {
     */
    public Scope getScope() {
       return this.scope;
+   }
+
+   /**
+    * Returns the description of this variable.
+    *
+    * @return the description of this variable
+    */
+   public String getDescription() {
+      return this.description;
    }
 
    /**

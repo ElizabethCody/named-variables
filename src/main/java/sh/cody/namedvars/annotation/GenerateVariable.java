@@ -29,6 +29,7 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 public @interface GenerateVariable {
    String value() default "";
+   String description() default "";
    Class<?extends Delegate> delegate() default FieldDelegate.class;
    Class<?> type() default Auto.class;
 }

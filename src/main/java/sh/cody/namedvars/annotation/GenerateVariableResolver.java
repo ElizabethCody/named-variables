@@ -39,6 +39,10 @@ public final class GenerateVariableResolver {
             "Field must be decorated with @GenerateVariable.");
    }
 
+   public String getDescription() {
+      return this.generateAnnotation.description();
+   }
+
    public String getName() {
       return "".equals(this.generateAnnotation.value()) ? this.field.getName() : this.generateAnnotation.value();
    }

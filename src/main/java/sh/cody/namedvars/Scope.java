@@ -80,8 +80,8 @@ public final class Scope implements Iterable<Variable<?>> {
     * @return the variable that was added
     * @throws ScopeException the scope already contains a variable with this name
     */
-   private <T> Variable<T> add(String name, Class<T> type, Delegate<T> delegate) throws ScopeException {
-      return this.add(new Variable<>(name, type, this, this.parserProvider.match(type), delegate));
+   private <T> Variable<T> add(String name, Class<T> type, String description, Delegate<T> delegate) throws ScopeException {
+      return this.add(new Variable<>(name, type, this, this.parserProvider.match(type), delegate, description));
    }
 
    /**
@@ -96,8 +96,25 @@ public final class Scope implements Iterable<Variable<?>> {
     * @throws ScopeException the scope already contains a variable with this name
     */
    public <T> Variable<T> add(String name, Class<T> type, Supplier<T> getter, Consumer<T> setter)
+         throws ScopeException {
+      return this.add(name, type, null, getter, setter);
+   }
+
+   /**
+    * Adds a variable to the scope using a functional getter and setter.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param description the variable's description
+    * @param getter the variable's getter
+    * @param setter the variable's setter
+    * @param <T> the variable's type
+    * @return the variable that was added
+    * @throws ScopeException the scope already contains a variable with this name
+    */
+   public <T> Variable<T> add(String name, Class<T> type, String description, Supplier<T> getter, Consumer<T> setter)
       throws ScopeException {
-      return this.add(name, type, Delegate.fromGetterAndSetter(getter, setter));
+      return this.add(name, type, description, Delegate.fromGetterAndSetter(getter, setter));
    }
 
    /**
@@ -124,7 +141,21 @@ public final class Scope implements Iterable<Variable<?>> {
     * @throws ScopeException the scope already contains a variable with this name
     */
    public <T> Variable<T> create(String name, Class<T> type, T value) throws ScopeException {
-      return this.add(name, type, new StoredValueDelegate<>(value));
+      return this.create(name, type, null, value);
+   }
+
+   /**
+    * Creates a new variable in the scope.
+    *
+    * @param name the variable's name
+    * @param type the variable's type
+    * @param value the variable's value
+    * @param <T> the variable's type
+    * @return the variable that was created
+    * @throws ScopeException the scope already contains a variable with this name
+    */
+   public <T> Variable<T> create(String name, Class<T> type, String description, T value) throws ScopeException {
+      return this.add(name, type, description, new StoredValueDelegate<>(value));
    }
 
    /**
@@ -138,7 +169,7 @@ public final class Scope implements Iterable<Variable<?>> {
     */
    public <T> Variable<T> importField(Object instance, Field field) throws ScopeException {
       GenerateVariableResolver resolver = new GenerateVariableResolver(instance, field);
-      return this.add(resolver.getName(), resolver.getType(), resolver.getDelegate());
+      return this.add(resolver.getName(), resolver.getType(), resolver.getDescription(), resolver.getDelegate());
    }
 
    /**
