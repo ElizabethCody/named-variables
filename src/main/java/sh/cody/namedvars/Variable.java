@@ -98,6 +98,16 @@ public final class Variable<T> {
       return this.description;
    }
 
+
+   /**
+    * Returns the delegate of this variable.
+    *
+    * @return the delegate of this variable
+    */
+   public Delegate<T> getDelegate() {
+      return this.delegate;
+   }
+
    /**
     * Updates the variable's value from a string.
     *
