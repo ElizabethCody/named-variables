@@ -45,7 +45,7 @@ def pomConfig = {
     }
 
     scm {
-        url projectUrl
+        url projectScmUrl
     }
 }
 
@@ -77,11 +77,11 @@ bintray {
     publications = ['mavenPublication']
 
     pkg {
-        repo = projectName
+        repo = 'java-libraries'
         name = projectName
         userOrg = 'maxwellcody'
         licenses = ['MIT']
-        vcsUrl = projectUrl
+        vcsUrl = projectScmUrl
         version {
             name = projectVersion
             desc = projectVersion
