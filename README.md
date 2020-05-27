@@ -45,6 +45,22 @@ public class Example {
 }
 ```
 
+## Use
+
+Update your Gradle build to include:
+
+```groovy
+repositories {
+    // ... your other repositories ...
+    jcenter()
+}
+
+dependencies {
+   // ... your other dependencies ...
+   implementation 'sh.cody:named-variables:1.1.0'
+}
+```
+
 ## Build
 <!-- TODO: Expand on this -->
 
